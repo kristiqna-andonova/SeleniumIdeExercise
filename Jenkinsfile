@@ -38,6 +38,7 @@ pipeline {
                 bat '''
                 echo Checking if Google Chrome is installed via Chocolatey...
                 choco list --local-only | findstr /i "googlechrome" 1>nul
+                bat 'choco install googlechrome --version=%CHROME_VERSION% -y --force'
                 if %ERRORLEVEL% NEQ 0 (
                     echo Google Chrome is not installed via Chocolatey, skipping uninstall.
                 ) else (
