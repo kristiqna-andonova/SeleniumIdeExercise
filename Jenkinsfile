@@ -5,7 +5,7 @@ pipeline {
         CHROME_VERSION = '133.0.6943.60'
         CHROMEDRIVER_VERSION = '133.0.6943.60'
         CHROME_INSTALL_PATH = 'C:\\Program Files\\Google\\Chrome\\Application'
-        CHROMEDRIVER_PATH = 'D:\\chromedriver-win64.zip\\chromedriver-win64' // Make sure the path is valid
+        CHROMEDRIVER_PATH = 'D:\\chromedriver-win64.zip\\chromedriver-win64' 
         GIT_SSH_COMMAND = 'ssh -i "C:/Users/Dell/.ssh/id_ed25519"'
     }
 
@@ -24,7 +24,7 @@ pipeline {
                 bat '''
                 dotnet --version | findstr "6.0" > nul
                 if %ERRORLEVEL% NEQ 0 (
-                    echo Installing .Net SDK 6.0...
+                    echo Installing .Net SDK 6.0...  
                     choco install dotnet-sdk -y --version=6.0.100
                 ) else (
                     echo .Net SDK 6.0 is already installed. Skipping installation.
