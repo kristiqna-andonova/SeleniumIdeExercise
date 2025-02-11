@@ -57,11 +57,16 @@ pipeline {
 
         stage('Download and Install ChromeDriver') {
             steps {
-                bat 'echo Downloading ChromeDriver version %CHROMEDRIVER_VERSION%'
-                bat 'powershell -command "Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/%CHROMEDRIVER_VERSION%/chromedriver_win32.zip -OutFile chromedriver.zip -UseBasicParsing"'
-                bat 'powershell -command "Expand-Archive -Path chromedriver.zip -DestinationPath . "' 
-                bat 'echo Moving chromedriver.exe to %CHROME_INSTALL_PATH%'
-                bat 'powershell -command "Move-Item -Path .\\chromedriver.exe -Destination \\"%CHROME_INSTALL_PATH%\\chromedriver.exe\\" -Force"'
+                bat '''
+                echo Checking latest ChromeDriver version...
+                powershell -command "$version = (Invoke-WebRequest -Uri 'https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json' -UseBasicParsing | ConvertFrom-Json).versions | Where-Object { $_.version -like '133*' } | Select-Object -First 1 -ExpandProperty version; echo Found ChromeDriver version: $version; $url = 'https://storage.googleapis.com/chrome-for-testing/' + $version + '/win64/chromedriver-win64.zip'; echo Downloading from $url; Invoke-WebRequest -Uri $url -OutFile chromedriver.zip -UseBasicParsing"
+        
+                echo Extracting ChromeDriver...
+                powershell -command "Expand-Archive -Path chromedriver.zip -DestinationPath . -Force"
+        
+                echo Moving chromedriver.exe to %CHROME_INSTALL_PATH%
+                move /Y chromedriver-win64\\chromedriver.exe "%CHROME_INSTALL_PATH%\\chromedriver.exe"
+                '''
             }
         }
 
