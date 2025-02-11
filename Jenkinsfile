@@ -8,28 +8,14 @@ pipeline {
         CHROME_INSTALL_PATH = 'C:\Program Files\Google\Chrome\Application'
         CHROMEDRIVER_PATH = '"D:\chromedriver-win64.zip\chromedriver-win64"'// Replace with the actual credential ID
     }
-
-    stages {
-        stages {
-        stage('Test SSH Connection') {
-            steps {
-                script {
-                    // Test SSH connection to GitHub
-                    bat 'ssh -T git@github.com'
-                }
-            }
-        }
             
-        stage('Checkout') {
+        stage('SSH Agent') {
             steps {
-                script {
-                    // Checkout code using Git and the credentials
-                    bat 'ssh -T git@github.com'
-
-                    git credentialsId: 'github_ssh', batch: 'master', url: 'git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
+                sshagent(['github_ssh']) {
+                    // Your Git checkout step here
+                    git credentialsId: 'github_ssh', branch: 'master', url: 'git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
-        }
 
         stage('Set up .NET Core') {
             steps {
