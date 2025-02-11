@@ -12,8 +12,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                sshagent(['github-ssh']) {  // Make sure this ID matches your stored credentials
-                    git credentialsId: 'github-ssh', branch: 'master', url: 'git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
+                sshagent(['github_ssh']) {  // Make sure this ID matches your stored credentials
+                    git credentialsId: 'github_ssh', branch: 'master', url: 'git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
         }
