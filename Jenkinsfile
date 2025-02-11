@@ -12,11 +12,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                sshagent(['github_ssh']) {  // Make sure this ID matches your stored credentials
-                    git branch: 'master', url: 'git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
+                withCredentials([sshUserPrivateKey(credentialsId: 'github_ssh', keyFileVariable: 'SSH_KEY')]) {
+                    sh 'git clone git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
-        }
 
         stage('Set up .NET Core') {
             steps {
