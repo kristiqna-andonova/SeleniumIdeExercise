@@ -14,7 +14,7 @@ pipeline {
             steps {
                 script {
                     // Checkout code using Git and the credentials
-                    git credentialsId: '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', batch: 'master', url: 'https://github.com/kristiqna-andonova/SeleniumIdeExercise.git'
+                    git credentialsId: 'github-credentials', batch: 'master', url: 'https://github.com/kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
         }
