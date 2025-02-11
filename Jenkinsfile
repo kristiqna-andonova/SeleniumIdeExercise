@@ -36,14 +36,13 @@ pipeline {
         stage('Uninstall current Chrome') {
             steps {
                 bat '''
-                echo Checking if Google Chrome is installed via Chocolatey...
-                choco list --local-only | findstr /i "googlechrome" 1>nul
-                bat 'choco install googlechrome --version=%CHROME_VERSION% -y --force'
-                if %ERRORLEVEL% NEQ 0 (
-                    echo Google Chrome is not installed via Chocolatey, skipping uninstall.
-                ) else (
+                echo Checking if Google Chrome is installed...
+                choco list --local-only | findstr /i "googlechrome" > nul
+                if %ERRORLEVEL% EQU 0 (
                     echo Uninstalling current Chrome...
                     choco uninstall googlechrome -y --skip-autouninstaller
+                ) else (
+                    echo Google Chrome is not installed. Skipping uninstall.
                 )
                 '''
             }
