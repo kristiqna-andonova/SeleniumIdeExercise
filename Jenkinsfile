@@ -10,6 +10,16 @@ pipeline {
     }
 
     stages {
+        stages {
+        stage('Test SSH Connection') {
+            steps {
+                script {
+                    // Test SSH connection to GitHub
+                    bat 'ssh -T git@github.com'
+                }
+            }
+        }
+            
         stage('Checkout') {
             steps {
                 script {
