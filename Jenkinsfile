@@ -13,10 +13,11 @@ pipeline {
         stage('Checkout') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'github_ssh', keyFileVariable: 'SSH_KEY')]) {
-                    bat 'git clone git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
+                    // Ensure that git is configured correctly to use SSH
+                    sh 'git config --global url."git@github.com:".insteadOf "https://github.com/"'
+                    sh 'git clone git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
-        } // <-- Close Checkout stage
 
         stage('Set up .NET Core') {
             steps {
