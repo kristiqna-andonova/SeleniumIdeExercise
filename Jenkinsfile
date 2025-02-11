@@ -18,6 +18,7 @@ pipeline {
         // Checkout the repository using SSH credentials
         stage('Checkout') {
             steps {
+                deleteDir()
                 withCredentials([sshUserPrivateKey(credentialsId: 'github_ssh', keyFileVariable: 'SSH_KEY')]) {
                     bat 'git clone https://github.com/kristiqna-andonova/SeleniumIdeExercise.git'
                 }
