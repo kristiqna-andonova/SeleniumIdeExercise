@@ -13,7 +13,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'github_ssh', keyFileVariable: 'SSH_KEY')]) {
-                    sh 'git clone git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
+                    bat 'git clone git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
         } // <-- Close Checkout stage
