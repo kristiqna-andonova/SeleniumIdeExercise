@@ -3,7 +3,10 @@ pipeline {
 
     environment {
         // Reference credentials stored in Jenkins
-        GIT_CREDENTIALS = credentials('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') // Replace with the actual credential ID
+        CHROME_VERSION = '133.0.6943.60'
+        CHROMEDRIVERS_VERSION = '133.0.6943.60'
+        CHROME_INSTALL_PATH = 'C:\Program Files\Google\Chrome\Application'
+        CHROMEDRIVER_PATH = '"D:\chromedriver-win64.zip\chromedriver-win64"'// Replace with the actual credential ID
     }
 
     stages {
@@ -11,7 +14,7 @@ pipeline {
             steps {
                 script {
                     // Checkout code using Git and the credentials
-                    git url: 'https://github.com/kristiqna-andonova/SeleniumIdeExercise.git', credentialsId: GIT_CREDENTIALS
+                    git batch: 'master', url: 'https://github.com/kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
         }
@@ -19,15 +22,21 @@ pipeline {
         stage('Set up .NET Core') {
             steps {
                 // Set up .NET Core on Windows
-                bat 'dotnet --version'
+                bat """
+                echo Installing .Net SDK 6.0
+                choco install dotnet-sdk -y --version=6.0.100
+                """
             }
         }
 
         stage('Uninstall current Chrome') {
             steps {
                 // Uninstall the current version of Chrome on Windows
-                bat 'echo Uninstalling current Chrome...'
-                bat 'wmic product where "name like \'%Google Chrome%\'" call uninstall /nointeractive'
+                bat '''
+                echo Uninstalling current Chrome...
+                choco uninstall googlechrome -y
+                '''
+                
             }
         }
 
@@ -36,12 +45,7 @@ pipeline {
                 // Install a specific version of Chrome (replace with actual version)
                 bat '''
                     echo Installing specific version of Chrome...
-                    SET CHROME_VERSION=132.0.6834.196
-                    SET DOWNLOAD_URL=https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Win%2F%2F$CHROME_VERSION%2Fchrome_installer.exe?generation=1627223094395930&alt=media
-                    SET INSTALLER=chrome_installer.exe
-                    curl -L %DOWNLOAD_URL% -o %INSTALLER%
-                    start /wait %INSTALLER%
-                    del %INSTALLER%
+                    choco install googlechore --version=%CHROME_VERSION% -y --allow-downgrade --ignore-checksums
                 '''
             }
         }
@@ -50,14 +54,10 @@ pipeline {
             steps {
                 // Download and install ChromeDriver (match version to installed Chrome)
                 bat '''
-                    echo Installing ChromeDriver...
-                    SET CHROMEDRIVER_VERSION=132.0.0.0
-                    SET CHROMEDRIVER_URL=https://chromedriver.storage.googleapis.com/%CHROMEDRIVER_VERSION%/chromedriver_win32.zip
-                    SET CHROMEDRIVER_ZIP=chromedriver.zip
-                    curl -L %CHROMEDRIVER_URL% -o %CHROMEDRIVER_ZIP%
-                    tar -xf %CHROMEDRIVER_ZIP%
-                    del %CHROMEDRIVER_ZIP%
-                    SET PATH=%PATH%;%CD%\chromedriver
+                echo Downloading ChromeDriver version %CHROMEDRIVER_VERSION%
+                powershell -command "Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/%CHROMEDRIVER_VERSION%/chromedriver_win32.zip -OutFile chromedriver.zip -UseBasicParsing"
+                powershell -command "Expand-Archive -Path chromedriver.zip -DestinationPath ."
+                powershell -command "Move-Item -Path .\\chromedriver.exe -Destination '%CHROME_INSTALL_PATH%\\chromedriver.exe' -Force"
                 '''
             }
         }
@@ -65,21 +65,21 @@ pipeline {
         stage('Restore Dependencies') {
             steps {
                 // Restore .NET dependencies
-                bat 'dotnet restore'
+                bat 'dotnet restore SeleniumIde.sln'
             }
         }
 
         stage('Build') {
             steps {
                 // Build the .NET Core project
-                bat 'dotnet build'
+                bat 'dotnet build SeleniumIde.sln --configuration Release'
             }
         }
 
         stage('Run Tests') {
             steps {
                 // Run tests for the .NET Core project
-                bat 'dotnet test'
+                bat 'dotnet test SeleniumIde.sln --loger "trx;LogFileNmae=TestResults.trx"'
             }
         }
     }
