@@ -6,16 +6,14 @@ pipeline {
         CHROMEDRIVERS_VERSION = '133.0.6943.60'
         CHROME_INSTALL_PATH = 'C:\\Program Files\\Google\\Chrome\\Application'
         CHROMEDRIVER_PATH = '"D:\\chromedriver-win64.zip\\chromedriver-win64"'
+        GIT_SSH_COMMAND = 'ssh -i "C:/Users/Dell/.ssh/id_ed25519"' 
     }
 
     stages {
-        stage('SSH Agent') {
+        stage('Checkout') {
             steps {
-                sshagent(['github_ssh']) { // Ensure the 'github_ssh' credential ID is correctly set in Jenkins
-                    script {
-                        // Git checkout using SSH
-                        git credentialsId: 'github_ssh', branch: 'master', url: 'git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
-                    }
+                sshagent(['github-ssh']) {  // Make sure this ID matches your stored credentials
+                    git credentialsId: 'github-ssh', branch: 'master', url: 'git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
         }
