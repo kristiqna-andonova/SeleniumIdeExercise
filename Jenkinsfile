@@ -1,100 +1,86 @@
 pipeline {
-    agent {
-        label 'windows'  // Use a Windows agent
-    }
+    agent any
 
     environment {
-        CHROME_VERSION = "133.0.0.0"  // Required Chrome version
-        CHROMEDRIVER_VERSION = "133.0.0.0"  // Matching ChromeDriver version
-        DOTNET_VERSION = "6.0.x"  // Set the required .NET Core version
+        // Reference credentials stored in Jenkins
+        GIT_CREDENTIALS = credentials('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') // Replace with the actual credential ID
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 script {
-                    checkout scm
+                    // Checkout code using Git and the credentials
+                    git url: 'https://github.com/kristiqna-andonova/SeleniumIdeExercise.git', credentialsId: GIT_CREDENTIALS
                 }
             }
         }
 
         stage('Set up .NET Core') {
             steps {
-                script {
-                    // Ensure .NET Core is available on the agent
-                    withEnv(["DOTNET_ROOT=${tool 'dotnet'}"]) {
-                        bat 'dotnet --version'
-                    }
-                }
+                // Set up .NET Core on Windows
+                bat 'dotnet --version'
             }
         }
 
-        stage('Uninstall Existing Chrome') {
+        stage('Uninstall current Chrome') {
             steps {
-                script {
-                    bat '''
-                    wmic product where "name like 'Google Chrome%%'" call uninstall /nointeractive || echo "No Chrome found"
-                    '''
-                }
+                // Uninstall the current version of Chrome on Windows
+                bat 'echo Uninstalling current Chrome...'
+                bat 'wmic product where "name like \'%Google Chrome%\'" call uninstall /nointeractive'
             }
         }
 
-        stage('Install Chrome 133') {
+        stage('Install specific version of Chrome') {
             steps {
-                script {
-                    bat """
-                    echo Installing Chrome version ${CHROME_VERSION}...
-                    curl -o chrome_installer.exe https://dl.google.com/release2/chrome/${CHROME_VERSION}/chrome_installer.exe
-                    start /wait chrome_installer.exe /silent /install
-                    """
-                }
+                // Install a specific version of Chrome (replace with actual version)
+                bat '''
+                    echo Installing specific version of Chrome...
+                    SET CHROME_VERSION=132.0.6834.196
+                    SET DOWNLOAD_URL=https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Win%2F%2F$CHROME_VERSION%2Fchrome_installer.exe?generation=1627223094395930&alt=media
+                    SET INSTALLER=chrome_installer.exe
+                    curl -L %DOWNLOAD_URL% -o %INSTALLER%
+                    start /wait %INSTALLER%
+                    del %INSTALLER%
+                '''
             }
         }
 
-        stage('Download and Install ChromeDriver 133') {
+        stage('Download and Install ChromeDriver') {
             steps {
-                script {
-                    bat """
-                    echo Installing ChromeDriver version ${CHROMEDRIVER_VERSION}...
-                    curl -o chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/${CHROMEDRIVER_VERSION}/chromedriver-win64.zip
-                    powershell -Command "Expand-Archive -Path chromedriver.zip -DestinationPath C:\\chromedriver"
-                    set PATH=%PATH%;C:\\chromedriver
-                    """
-                }
+                // Download and install ChromeDriver (match version to installed Chrome)
+                bat '''
+                    echo Installing ChromeDriver...
+                    SET CHROMEDRIVER_VERSION=132.0.0.0
+                    SET CHROMEDRIVER_URL=https://chromedriver.storage.googleapis.com/%CHROMEDRIVER_VERSION%/chromedriver_win32.zip
+                    SET CHROMEDRIVER_ZIP=chromedriver.zip
+                    curl -L %CHROMEDRIVER_URL% -o %CHROMEDRIVER_ZIP%
+                    tar -xf %CHROMEDRIVER_ZIP%
+                    del %CHROMEDRIVER_ZIP%
+                    SET PATH=%PATH%;%CD%\chromedriver
+                '''
             }
         }
 
         stage('Restore Dependencies') {
             steps {
-                script {
-                    bat 'dotnet restore'
-                }
+                // Restore .NET dependencies
+                bat 'dotnet restore'
             }
         }
 
-        stage('Build Project') {
+        stage('Build') {
             steps {
-                script {
-                    bat 'dotnet build --configuration Debug'
-                }
+                // Build the .NET Core project
+                bat 'dotnet build'
             }
         }
 
         stage('Run Tests') {
             steps {
-                script {
-                    bat 'dotnet test --logger trx'
-                }
+                // Run tests for the .NET Core project
+                bat 'dotnet test'
             }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: '**/TestResults/*.trx', allowEmptyArchive: true
-        }
-        failure {
-            echo "Build or tests failed! Check logs for details."
         }
     }
 }
