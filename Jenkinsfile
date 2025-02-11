@@ -20,7 +20,7 @@ pipeline {
             steps {
                 deleteDir()
                 withCredentials([sshUserPrivateKey(credentialsId: 'github_ssh', keyFileVariable: 'SSH_KEY')]) {
-                    bat 'git clone git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
+                    bat 'git clone https://github.com/kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
         }
