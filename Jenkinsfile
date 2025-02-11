@@ -59,13 +59,31 @@ pipeline {
             steps {
                 bat '''
                 echo Checking latest ChromeDriver version...
-                powershell -command "$version = (Invoke-WebRequest -Uri 'https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json' -UseBasicParsing | ConvertFrom-Json).versions | Where-Object { $_.version -like '133*' } | Select-Object -First 1 -ExpandProperty version; echo Found ChromeDriver version: $version; $url = 'https://storage.googleapis.com/chrome-for-testing/' + $version + '/win64/chromedriver-win64.zip'; echo Downloading from $url; Invoke-WebRequest -Uri $url -OutFile chromedriver.zip -UseBasicParsing"
+                powershell -command "
+                    $chromeVersion = '133.0.6943.60'
+                    $jsonUrl = 'https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json'
+                    $chromeData = Invoke-WebRequest -Uri $jsonUrl -UseBasicParsing | ConvertFrom-Json
+                    $matchingVersion = $chromeData.versions | Where-Object { $_.version -eq $chromeVersion } | Select-Object -First 1
+                    if ($matchingVersion -and $matchingVersion.downloads.chromedriver) {
+                        $downloadUrl = $matchingVersion.downloads.chromedriver | Where-Object { $_.platform -eq 'win64' } | Select-Object -ExpandProperty url
+                        if ($downloadUrl) {
+                            echo Downloading from $downloadUrl
+                            Invoke-WebRequest -Uri $downloadUrl -OutFile chromedriver.zip -UseBasicParsing
+                        } else {
+                            echo ERROR: ChromeDriver download URL not found!
+                            exit 1
+                        }
+                    } else {
+                        echo ERROR: Matching ChromeDriver version not found!
+                        exit 1
+                    }
+                "
         
                 echo Extracting ChromeDriver...
                 powershell -command "Expand-Archive -Path chromedriver.zip -DestinationPath . -Force"
         
-                echo Moving chromedriver.exe to %CHROME_INSTALL_PATH%
-                move /Y chromedriver-win64\\chromedriver.exe "%CHROME_INSTALL_PATH%\\chromedriver.exe"
+                echo Moving chromedriver.exe to C:\\Program Files\\Google\\Chrome\\Application
+                move /Y chromedriver-win64\\chromedriver.exe "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe"
                 '''
             }
         }
