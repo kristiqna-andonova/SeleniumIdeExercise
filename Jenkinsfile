@@ -14,6 +14,8 @@ pipeline {
             steps {
                 script {
                     // Checkout code using Git and the credentials
+                    bat 'ssh -T git@github.com'
+
                     git credentialsId: 'github_ssh', batch: 'master', url: 'git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
