@@ -21,8 +21,15 @@ pipeline {
 
         stage('Set up .NET Core') {
             steps {
-                bat 'echo Installing .Net SDK 6.0...'
-                bat 'choco install dotnet-sdk -y --version=6.0.100'
+                bat '''
+                dotnet --version | findstr "6.0" > nul
+                if %ERRORLEVEL% NEQ 0 (
+                    echo Installing .Net SDK 6.0...
+                    choco install dotnet-sdk -y --version=6.0.100
+                ) else (
+                    echo .Net SDK 6.0 is already installed. Skipping installation.
+                )
+                '''
             }
         }
 
