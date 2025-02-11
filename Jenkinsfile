@@ -3,9 +3,9 @@ pipeline {
 
     environment {
         CHROME_VERSION = '133.0.6943.60'
-        CHROMEDRIVERS_VERSION = '133.0.6943.60'
+        CHROMEDRIVER_VERSION = '133.0.6943.60'
         CHROME_INSTALL_PATH = 'C:\\Program Files\\Google\\Chrome\\Application'
-        CHROMEDRIVER_PATH = '"D:\\chromedriver-win64.zip\\chromedriver-win64"'
+        CHROMEDRIVER_PATH = 'D:\\chromedriver-win64.zip\\chromedriver-win64' // Make sure the path is valid
         GIT_SSH_COMMAND = 'ssh -i "C:/Users/Dell/.ssh/id_ed25519"'
     }
 
@@ -59,8 +59,9 @@ pipeline {
             steps {
                 bat 'echo Downloading ChromeDriver version %CHROMEDRIVER_VERSION%'
                 bat 'powershell -command "Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/%CHROMEDRIVER_VERSION%/chromedriver_win32.zip -OutFile chromedriver.zip -UseBasicParsing"'
-                bat 'powershell -command "Expand-Archive -Path chromedriver.zip -DestinationPath . "'
-                bat 'powershell -command "Move-Item -Path .\\chromedriver.exe -Destination \'%CHROME_INSTALL_PATH%\\chromedriver.exe\' -Force"'
+                bat 'powershell -command "Expand-Archive -Path chromedriver.zip -DestinationPath . "' 
+                bat 'echo Moving chromedriver.exe to %CHROME_INSTALL_PATH%'
+                bat 'powershell -command "Move-Item -Path .\\chromedriver.exe -Destination \\"%CHROME_INSTALL_PATH%\\chromedriver.exe\\" -Force"'
             }
         }
 
