@@ -6,7 +6,7 @@ pipeline {
         CHROMEDRIVERS_VERSION = '133.0.6943.60'
         CHROME_INSTALL_PATH = 'C:\\Program Files\\Google\\Chrome\\Application'
         CHROMEDRIVER_PATH = '"D:\\chromedriver-win64.zip\\chromedriver-win64"'
-        GIT_SSH_COMMAND = 'ssh -i "C:/Users/Dell/.ssh/id_ed25519"' 
+        GIT_SSH_COMMAND = 'ssh -i "C:/Users/Dell/.ssh/id_ed25519"'
     }
 
     stages {
@@ -16,6 +16,7 @@ pipeline {
                     sh 'git clone git@github.com:kristiqna-andonova/SeleniumIdeExercise.git'
                 }
             }
+        } // <-- Close Checkout stage
 
         stage('Set up .NET Core') {
             steps {
